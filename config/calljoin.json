@@ -1,0 +1,41 @@
+calljoin: {
+  event: 'call.joined',
+  call: {
+    callId: '8bc6d97a-ee08-4ffa-8383-bd27517b04e1',
+    clientVersion: 'phone(api_v0)',
+    created: '2025-05-18T14:46:42.678734Z',
+    joined: '2025-05-18T14:46:43.115680Z',
+    ended: null,
+    endReason: null,
+    firstSpeaker: 'FIRST_SPEAKER_AGENT',
+    firstSpeakerSettings: { agent: {} },
+    inactivityMessages: [],
+    initialOutputMedium: 'MESSAGE_MEDIUM_VOICE',
+    joinTimeout: '30s',
+    joinUrl: 'wss://prod-voice-pgaenaxiea-uc.a.run.app/calls/8bc6d97a-ee08-4ffa-8383-bd27517b04e1/telephony',
+    languageHint: null,
+    maxDuration: '627s',
+    medium: { twilio: {} },
+    model: 'fixie-ai/ultravox',
+    recordingEnabled: false,
+    systemPrompt: 'This is from Mali from QASTCO',
+    temperature: 0,
+    timeExceededMessage: null,
+    voice: '91fa9bcf-93c8-467c-8b29-973720e3f167',
+    transcriptOptional: true,
+    errorCount: 0,
+    vadSettings: null,
+    shortSummary: null,
+    summary: null,
+    experimentalSettings: null,
+    metadata: {
+      callto: '+441146976673',
+      company: 'QASTCO',
+      callfrom: '+447305671889',
+      direction: 'INBOUND'
+    },
+    initialState: {},
+    requestContext: {},
+    dataConnectionConfig: null
+  }
+}
