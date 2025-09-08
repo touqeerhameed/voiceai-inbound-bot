@@ -429,6 +429,57 @@ export async function create_call_active_log(active_call,pick_count,direction,no
   }
 }
 
+export async function getbusinessbyPhoneNumber_voice(phone_number) {
+  if (!phone_number) {
+    console.error('phone_number is required');
+    return null;
+  }
+
+  try {
+    const response = await axios.post(
+      `${ERP_API_BASE_URL}aiagentapp.api.aiapi.getbusinessbyPhoneNumber_voice`,
+      { phone_number },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `token ${E_ADMIN_API_KEY}:${E_ADMIN_API_SECRET}`
+        }
+      }
+    );
+
+    const business = response.data;
+
+    if (!business) {
+      logMessage('No business record found for phone number:', phone_number);
+      return null;
+    }
+
+    logMessage('Business matched data:', business);
+    return business;
+
+  } catch (error) {
+    if (error.response) {
+      // Server responded but returned error status (e.g. 404)
+      console.error(
+        'ERP API error:',
+        error.response.status,
+        error.response.statusText,
+        error.response.data
+      );
+    } else if (error.request) {
+      // Request sent but no response received
+      logMessage('No response from ERP API:', error.request);
+    } else {
+      // Some other error occurred
+      logMessage('Unexpected error:', error.message);
+    }
+
+    // Return null instead of throwing to keep app alive
+    return null;
+  }
+}
+
+
 export async function getbusinessbyPhoneNumber(phone_number) {
   if (!phone_number) {
     console.error('phone_number is required');
@@ -742,6 +793,248 @@ export async function log_TransferCall_status(tcallData) {
   }
 }
 
+export async function log_Conference_end(apiPayload) {
+  try {  
+    logMessage('log_Conference_end pay', JSON.stringify(apiPayload));  
+
+    const response = await axios.post(
+      `${ERP_API_BASE_URL}aiagentapp.api.aiapi.conference_end`,
+       JSON.stringify(apiPayload),  // Send complete body directly
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `token ${E_ADMIN_API_KEY}:${E_ADMIN_API_SECRET}`
+        }
+      }
+    );
+
+    const result = response.data;
+    console.log("log_Conference_end *** : ",result)
+    if (!result.message) {
+      console.log('log_Conference_end succeeded but no message returned');
+      return null;
+    }
+
+    //console.log('Call session logged:', result.message);
+    return result;
+
+  } catch (error) {
+    // Unified error handling
+    const errorResponse = {
+      status: 'error',
+      message: 'Failed to log log_Conference_end',
+      details: null
+    };
+
+    if (error.response) {
+      // Server responded with error status
+      errorResponse.details = {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data
+      };
+      console.log('log_Conference_end API Error Response:', errorResponse.details);
+    } else if (error.request) {
+      // No response received
+      errorResponse.details = 'No response from server';
+      console.log('log_Conference_end No response received:', error.request);
+    } else {
+      // Setup error
+      errorResponse.details = error.message;
+      console.log(' log_Conference_end Request setup error:', error.message);
+    }
+
+    // Return error object instead of throwing
+    return errorResponse;
+
+    // Optional: Throw in development
+    // if (process.env.NODE_ENV === 'development') throw error;
+    // return errorResponse;
+  }
+}
+
+export async function get_conf_party(conferenceStatus) {
+  try {  
+    logMessage('get_conf_party', JSON.stringify(conferenceStatus));  
+
+    const response = await axios.post(
+      `${ERP_API_BASE_URL}aiagentapp.api.aiapi.get_conf_party_voice`,
+       JSON.stringify(conferenceStatus),  // Send complete body directly
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `token ${E_ADMIN_API_KEY}:${E_ADMIN_API_SECRET}`
+        }
+      }
+    );
+
+    const result = response.data;
+    logMessage('get_conf_party result:', JSON.stringify(result, null, 2));
+    console.log("get_conf_party *** : ",result)
+    if (!result.message) {
+      console.log('get_conf_party succeeded but no message returned');
+      return null;
+    }
+
+    //console.log('Call session logged:', result.message);
+    return result;
+
+  } catch (error) {
+    // Unified error handling
+    const errorResponse = {
+      status: 'error',
+      message: 'Failed to log get_conf_party',
+      details: null
+    };
+
+    if (error.response) {
+      // Server responded with error status
+      errorResponse.details = {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data
+      };
+      console.log('get_conf_party API Error Response:', errorResponse.details);
+    } else if (error.request) {
+      // No response received
+      errorResponse.details = 'No response from server';
+      console.log('get_conf_party No response received:', error.request);
+    } else {
+      // Setup error
+      errorResponse.details = error.message;
+      console.log(' get_conf_party Request setup error:', error.message);
+    }
+
+    // Return error object instead of throwing
+    return errorResponse;
+
+    // Optional: Throw in development
+    // if (process.env.NODE_ENV === 'development') throw error;
+    // return errorResponse;
+  }
+}
+
+export async function log_Conference_status(conferenceStatus) {
+  try {  
+    logMessage('log_TransferCall_gc', JSON.stringify(conferenceStatus));  
+
+    const response = await axios.post(
+      `${ERP_API_BASE_URL}aiagentapp.api.aiapi.conference_status`,
+       JSON.stringify(conferenceStatus),  // Send complete body directly
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `token ${E_ADMIN_API_KEY}:${E_ADMIN_API_SECRET}`
+        }
+      }
+    );
+
+    const result = response.data;
+    console.log("conference_status *** : ",result)
+    if (!result.message) {
+      console.log('conference_status succeeded but no message returned');
+      return null;
+    }
+
+    //console.log('Call session logged:', result.message);
+    return result;
+
+  } catch (error) {
+    // Unified error handling
+    const errorResponse = {
+      status: 'error',
+      message: 'Failed to log conference_status',
+      details: null
+    };
+
+    if (error.response) {
+      // Server responded with error status
+      errorResponse.details = {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data
+      };
+      console.log('conference_status API Error Response:', errorResponse.details);
+    } else if (error.request) {
+      // No response received
+      errorResponse.details = 'No response from server';
+      console.log('conference_status No response received:', error.request);
+    } else {
+      // Setup error
+      errorResponse.details = error.message;
+      console.log(' conference_status Request setup error:', error.message);
+    }
+
+    // Return error object instead of throwing
+    return errorResponse;
+
+    // Optional: Throw in development
+    // if (process.env.NODE_ENV === 'development') throw error;
+    // return errorResponse;
+  }
+}
+
+
+export async function getTTokenForCompany(company_id) {
+  try {  
+    //console.log('log_TransferCall_gc', JSON.stringify(tcallData));  
+
+    const response = await axios.post(
+      `${ERP_API_BASE_URL}aiagentapp.api.aiapi.gettoken_for_company`,
+      { company_id },  // Send job_id directly       
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `token ${E_ADMIN_API_KEY}:${E_ADMIN_API_SECRET}`
+        }
+      }
+    );
+
+    const result = response.data;
+    console.log("getTTokenForCompany *** : ",result)
+    if (!result.message) {
+      console.log('getTTokenForCompany succeeded but no message returned');
+      return null;
+    }
+
+    //console.log('Call session logged:', result.message);
+    return result;
+
+  } catch (error) {
+    // Unified error handling
+    const errorResponse = {
+      status: 'error',
+      message: 'Failed to log getTTokenForCompany',
+      details: null
+    };
+
+    if (error.response) {
+      // Server responded with error status
+      errorResponse.details = {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data
+      };
+      console.log('getTTokenForCompany API Error Response:', errorResponse.details);
+    } else if (error.request) {
+      // No response received
+      errorResponse.details = 'No response from server';
+      console.log('getTTokenForCompany No response received:', error.request);
+    } else {
+      // Setup error
+      errorResponse.details = error.message;
+      console.log(' getTTokenForCompany Request setup error:', error.message);
+    }
+
+    // Return error object instead of throwing
+    return errorResponse;
+
+    // Optional: Throw in development
+    // if (process.env.NODE_ENV === 'development') throw error;
+    // return errorResponse;
+  }
+}
+
 export async function log_TransferCall_gc(tcallData) {
   try {  
     logMessage('log_TransferCall_gc', JSON.stringify(tcallData));  
@@ -805,7 +1098,7 @@ export async function log_CallSession(callData) {
   try {    
 
     const response = await axios.post(
-      `${ERP_API_BASE_URL}aiagentapp.api.aiapi.log_CallSessionLog`,
+      `${ERP_API_BASE_URL}aiagentapp.api.aiapi.log_CallSessionVoiceLog`,
        JSON.stringify(callData),  // Send complete body directly
       {
         headers: {
@@ -860,6 +1153,8 @@ export async function log_CallSession(callData) {
 }
 
 export async function appendCallWithTranscript(callData,COMPANYID,EMAILADDRESS,EMAILNOTIFICAION,shortSummary,summary,callended) {
+
+  
   try {
     const payload = {
       ...callData,
@@ -874,7 +1169,7 @@ export async function appendCallWithTranscript(callData,COMPANYID,EMAILADDRESS,E
 
     logMessage('appendCallWithTranscript Payload:', payload);
     const response = await axios.post(
-      `${ERP_API_BASE_URL}aiagentapp.api.aiapi.save_call_with_transcript`,
+      `${ERP_API_BASE_URL}aiagentapp.api.aiapi.save_call_with_transcript_voice`,
       JSON.stringify(payload), // Direct stringification as requested
       {
         headers: {

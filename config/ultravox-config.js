@@ -3,6 +3,9 @@ import {
   TOOLS_BASE_URL
 } from './config.js';
 
+ 
+
+
 const assessmentReq=false;
 const sharedAssessmentParameters = [
   {
@@ -185,186 +188,8 @@ const sharedAssessmentParameters = [
 ]; 
 
  
-const bookAppointmentTool = (FROM, TO, IS_APPOINTMENT_EMAIL) => ({
+const bookAppointmentTool = (FROM, TO, is_book_appointment) => ({
   temporaryTool: {
-    modelToolName: "bookAppointment",
-    description: "Schedule appointments",
-    staticParameters: [
-      { "name": "fromNumber", "location": "PARAMETER_LOCATION_BODY", "value": TO },
-      { "name": "toNumber", "location": "PARAMETER_LOCATION_BODY", "value": FROM },
-      { "name": "isAppointEmail", "location": "PARAMETER_LOCATION_BODY", "value": IS_APPOINTMENT_EMAIL },
-      { "name": "intent_from", "location": "PARAMETER_LOCATION_BODY", "value": "outbound Appointment" }
-    ],
-    automaticParameters: [{
-      "name": "callId",
-      "location": "PARAMETER_LOCATION_BODY",
-      "knownValue": "KNOWN_PARAM_CALL_ID"
-    }],
-    dynamicParameters: [       
-      { name: "firstname", location: "PARAMETER_LOCATION_BODY", schema: { type: "string" }, required: true },
-      { name: "lastname", location: "PARAMETER_LOCATION_BODY", schema: { type: "string" }, required: true },
-      { name: "contactnumber", location: "PARAMETER_LOCATION_BODY", schema: { type: "string" }, required: true },
-      { name: "emailaddress", location: "PARAMETER_LOCATION_BODY", schema: { type: "string" }, required: true },
-      { name: "purpose", location: "PARAMETER_LOCATION_BODY", schema: { type: "string" }, required: true },
-      { name: "appointmentdate", location: "PARAMETER_LOCATION_BODY", schema: { type: "string", format: "date" }, required: true },
-      { name: "appointmenttime", location: "PARAMETER_LOCATION_BODY", schema: { type: "string", format: "time" }, required: true },
-      { name: "conversationSummary", location: "PARAMETER_LOCATION_BODY", schema: { 
-          description: "A 2-3 sentence summary of the conversation",
-          type: "string"
-        }, required: true 
-      },
-      ...sharedAssessmentParameters
-    ],
-    http: {
-      baseUrlPattern: `${TOOLS_BASE_URL}/whook/bookAppointment`,
-      httpMethod: "POST",
-    }
-  }
-});
-
-const hangUpCallTool = (FROM, TO, COMPANYID, JOB_ID) => ({
-  temporaryTool: {
-    modelToolName: "hangUpCall",
-    description: "Ends the call when the conversation is complete.",
-    staticParameters: [
-      { "name": "fromNumber", "location": "PARAMETER_LOCATION_BODY", "value": FROM },
-      { "name": "toNumber", "location": "PARAMETER_LOCATION_BODY", "value": TO },
-      { "name": "direction", "location": "PARAMETER_LOCATION_BODY", "value": "OUTBOUND" },
-      { "name": "companyid", "location": "PARAMETER_LOCATION_BODY", "value": COMPANYID },
-      { "name": "job_id", "location": "PARAMETER_LOCATION_BODY", "value": JOB_ID },
-      { "name": "intent_from", "location": "PARAMETER_LOCATION_BODY", "value": "outbound Hangup" }
-    ], 
-    automaticParameters: [{
-      name: "callId",
-      location: "PARAMETER_LOCATION_BODY",
-      knownValue: "KNOWN_PARAM_CALL_ID"
-    }],
-    dynamicParameters: [            
-      ...sharedAssessmentParameters
-    ],
-    http: {
-      baseUrlPattern: `${TOOLS_BASE_URL}/twilio/hangUpCall`,
-      httpMethod: "POST"
-    }
-  }
-});
-
-const transferCallTool = (FROM, TO, ISCALLFORWARDING, FORWARDING_MOBILE_NUMBER, COMPANYID, JOB_ID) => ({
-  temporaryTool: {
-    modelToolName: "transferCall",
-    description: "Escalate to human agent", 
-    staticParameters: [
-      { "name": "fromNumber", "location": "PARAMETER_LOCATION_BODY", "value": FROM },
-      { "name": "toNumber", "location": "PARAMETER_LOCATION_BODY", "value": TO },
-      { "name": "isCallForwarding", "location": "PARAMETER_LOCATION_BODY", "value": ISCALLFORWARDING },
-      { "name": "forwardingMobileNumber", "location": "PARAMETER_LOCATION_BODY", "value": FORWARDING_MOBILE_NUMBER },
-      { "name": "direction", "location": "PARAMETER_LOCATION_BODY", "value": "OUTBOUND" },
-      { "name": "companyid", "location": "PARAMETER_LOCATION_BODY", "value": COMPANYID },
-      { "name": "job_id", "location": "PARAMETER_LOCATION_BODY", "value": JOB_ID },
-      { "name": "intent_from", "location": "PARAMETER_LOCATION_BODY", "value": "outbound Transfer" }
-    ],         
-    automaticParameters: [{
-      "name": "callId",
-      "location": "PARAMETER_LOCATION_BODY",
-      "knownValue": "KNOWN_PARAM_CALL_ID"
-    }],
-    dynamicParameters: [
-      { name: "firstname", location: "PARAMETER_LOCATION_BODY", schema: { type: "string" }, required: false },
-      { name: "lastname", location: "PARAMETER_LOCATION_BODY", schema: { type: "string" }, required: false },
-      { name: "transferReason", location: "PARAMETER_LOCATION_BODY", schema: { type: "string" }, required: false },
-      { name: "conversationSummary", location: "PARAMETER_LOCATION_BODY", schema: { 
-          description: "A concise summary of the current conversation",
-          type: "string" 
-        }, required: false 
-      },
-      ...sharedAssessmentParameters
-    ],
-    http: {
-      baseUrlPattern: `${TOOLS_BASE_URL}/twilio/transferCall`,
-      httpMethod: "POST",
-    }
-  }
-});
-
-
-function createSelectedTools(FROM, TO,IS_APPOINTMENT_EMAIL,ISCALLFORWARDING,FORWARDING_MOBILE_NUMBER,COMPANY_NAME ,COMPANYID) {
-  return [
-      {
-        temporaryTool: {
-          modelToolName: "transferCall",          
-          description: "Escalate to human agent", 
-           staticParameters: [
-            {
-              "name": "fromNumber",
-              "location": "PARAMETER_LOCATION_BODY",
-              "value": FROM
-            },
-            {
-              "name": "toNumber",
-              "location": "PARAMETER_LOCATION_BODY",
-              "value": TO
-            },
-            {
-              "name": "isCallForwarding",
-              "location": "PARAMETER_LOCATION_BODY",
-              "value": ISCALLFORWARDING
-            },
-            {
-              "name": "forwardingMobileNumber",
-              "location": "PARAMETER_LOCATION_BODY",
-              "value": FORWARDING_MOBILE_NUMBER
-            },
-            {
-              "name": "direction",
-              "location": "PARAMETER_LOCATION_BODY",
-              "value": "INBOUND"
-            },           
-            {
-              "name": "companyid",
-              "location": "PARAMETER_LOCATION_BODY",
-              "value": COMPANYID
-            },
-            {
-              "name": "intent_from",
-              "location": "PARAMETER_LOCATION_BODY",
-              "value": "inbound Transfer"
-            }
-            
-          ],         
-          automaticParameters: [{
-              "name": "callId",
-              "location": "PARAMETER_LOCATION_BODY",
-              "knownValue": "KNOWN_PARAM_CALL_ID"
-            },
-          
-          ],
-          dynamicParameters: [
-            { name: "firstname", location: "PARAMETER_LOCATION_BODY", schema: { type: "string" }, required: true },
-            { name: "lastname", location: "PARAMETER_LOCATION_BODY", schema: { type: "string" }, required: true },
-            { name: "transferReason", location: "PARAMETER_LOCATION_BODY", schema: { type: "string" }, required: true },
-            // --- ADD THIS NEW PARAMETER FOR THE SUMMARY ---
-            // {
-            //   name: "conversationSummary", // A descriptive name for the summary parameter
-            //   location: "PARAMETER_LOCATION_BODY",
-            //   schema: { type: "string" },
-            //   required: true, // Make it required so the AI always provides a summary
-            //   description: "A concise summary of the current conversation, to be provided to the human agent."
-            // }
-
-             { name: "conversationSummary",location: "PARAMETER_LOCATION_BODY", schema: { description: "A concise summary of the current conversation, to be provided to the human agent.",
-              type: "string"
-            },
-            required: true},
-            ...sharedAssessmentParameters
-          ],
-          http: {
-            baseUrlPattern: `${TOOLS_BASE_URL}/twilio/transferCall`,
-            httpMethod: "POST",
-          },
-        }
-      },
-      {
-        temporaryTool: {
           modelToolName: "bookAppointment",
           description: "Schedule appointments",
           staticParameters: [
@@ -386,7 +211,7 @@ function createSelectedTools(FROM, TO,IS_APPOINTMENT_EMAIL,ISCALLFORWARDING,FORW
              {
               "name": "isAppointEmail",
               "location": "PARAMETER_LOCATION_BODY",
-              "value": IS_APPOINTMENT_EMAIL
+              "value": is_book_appointment
             },
             {
               "name": "intent_from",
@@ -422,12 +247,13 @@ function createSelectedTools(FROM, TO,IS_APPOINTMENT_EMAIL,ISCALLFORWARDING,FORW
             httpMethod: "POST",
           },
         }
-      },
-      {
-        temporaryTool: {
-          modelToolName: "hangUpCall",
-          description: "Ends the call when the conversation is complete.",
-        staticParameters: [
+});
+
+const hangUpCallTool = (FROM, TO, company_id ) => ({
+  temporaryTool: {
+      modelToolName: "hangUpCall",
+      description: "Ends the call when the conversation is complete.",
+      staticParameters: [
       {
         name: "fromNumber",
         location: "PARAMETER_LOCATION_BODY",
@@ -447,15 +273,14 @@ function createSelectedTools(FROM, TO,IS_APPOINTMENT_EMAIL,ISCALLFORWARDING,FORW
       {
         name: "companyid",
         location: "PARAMETER_LOCATION_BODY",
-        value: COMPANYID
+        value: company_id
       },
       {
-              "name": "intent_from",
-              "location": "PARAMETER_LOCATION_BODY",
-              "value": "inbound Hangup"
+        name: "intent_from",
+        location: "PARAMETER_LOCATION_BODY",
+        value: "inbound Hangup"
       }
-      
-        ], 
+      ], 
         automaticParameters: [
           {
             name: "callId",
@@ -472,12 +297,112 @@ function createSelectedTools(FROM, TO,IS_APPOINTMENT_EMAIL,ISCALLFORWARDING,FORW
           baseUrlPattern: `${TOOLS_BASE_URL}/twilio/hangUpCall`,
           httpMethod: "POST"
         }
+      }
+});
+
+const transferCallTool = (FROM, TO, is_transfercall, transfercall_mobileno, company_id) => ({
+   temporaryTool: {
+          modelToolName: "transferCall",          
+          description: "Escalate to human agent", 
+           staticParameters: [
+            {
+              "name": "fromNumber",
+              "location": "PARAMETER_LOCATION_BODY",
+              "value": FROM
+            },
+            {
+              "name": "toNumber",
+              "location": "PARAMETER_LOCATION_BODY",
+              "value": TO
+            },
+            {
+              "name": "isCallForwarding",
+              "location": "PARAMETER_LOCATION_BODY",
+              "value": is_transfercall
+            },
+            {
+              "name": "forwardingMobileNumber",
+              "location": "PARAMETER_LOCATION_BODY",
+              "value": transfercall_mobileno
+            },
+            {
+              "name": "direction",
+              "location": "PARAMETER_LOCATION_BODY",
+              "value": "INBOUND"
+            },           
+            {
+              "name": "companyid",
+              "location": "PARAMETER_LOCATION_BODY",
+              "value": company_id
+            },
+            {
+              "name": "intent_from",
+              "location": "PARAMETER_LOCATION_BODY",
+              "value": "inbound Transfer"
+            }
+            
+          ],         
+          automaticParameters: [{
+              "name": "callId",
+              "location": "PARAMETER_LOCATION_BODY",
+              "knownValue": "KNOWN_PARAM_CALL_ID"
+            },
+          
+          ],
+          dynamicParameters: [
+            { name: "firstname", location: "PARAMETER_LOCATION_BODY", schema: { type: "string" }, required: true },
+            { name: "lastname", location: "PARAMETER_LOCATION_BODY", schema: { type: "string" }, required: true },
+            { name: "transferReason", location: "PARAMETER_LOCATION_BODY", schema: { type: "string" }, required: true },
+            { name: "conversationSummary",location: "PARAMETER_LOCATION_BODY", schema: { description: "A concise summary of the current conversation, to be provided to the human agent.",
+              type: "string"
+            },
+            required: true},
+            ...sharedAssessmentParameters
+          ],
+          http: {
+            baseUrlPattern: `${TOOLS_BASE_URL}/twilio/transferCall`,
+            httpMethod: "POST",
+          },
         }
-     }
+});
 
-     ];
-} 
 
+const queryCorpusTool = (RAG_COLLECTION_ID) => ({
+    toolName: "queryCorpus",
+    parameterOverrides: {
+        corpus_id: RAG_COLLECTION_ID,
+        max_results: 5
+    }
+});
+
+
+function createSelectedTools(FROM, TO, is_book_appointment, is_transfercall, transfercall_mobileno, company_name, company_id,
+      is_taking_notes, is_appointment_reminder, knowlege_base_id, use_knowlege_base
+    ) {
+
+      console.log('Creating selected tools with use_knowlege_base:', use_knowlege_base, 'and knowlege_base_id:', knowlege_base_id);
+      const tools = []; 
+      
+      // Add knowledge base tool if enabled
+      if ((use_knowlege_base === true || use_knowlege_base === 1 || use_knowlege_base === "1") && knowlege_base_id) {
+          tools.push(queryCorpusTool(knowlege_base_id));
+      }
+      
+      // Add transfer call tool only if enabled
+      if (is_transfercall === true || is_transfercall === 1 || is_transfercall === "1") {
+          tools.push(transferCallTool(FROM, TO, is_transfercall, transfercall_mobileno, company_id));
+      }
+      
+      // Add book appointment tool only if enabled
+      if (is_book_appointment === true || is_book_appointment === 1 || is_book_appointment === "1") {
+          tools.push(bookAppointmentTool(FROM, TO, is_book_appointment));
+      }
+      
+      // Always add hang up call tool
+      tools.push(hangUpCallTool(FROM, TO, company_id));
+      
+      return tools;
+}
  
 
 /**
@@ -486,58 +411,32 @@ function createSelectedTools(FROM, TO,IS_APPOINTMENT_EMAIL,ISCALLFORWARDING,FORW
  * @param {string} agentVoice - The TTS voice for the agent
  * @returns {object} ULTRAVOX_CALL_CONFIG
  */
-export async function  createUltravoxCallConfig(System_Prompt, Agent_Voice,COMPANY_NAME,FROM,TO,TEMPERATURE,ISCALLTRANSCRIPT,ISCALLRECORDING,ISCALLFORWARDING,FORWARDING_MOBILE_NUMBER,COMPANYID,EMAILADDRESS,EMAILNOTIFICAION,IS_APPOINTMENT_EMAIL,MAX_CALL_DUR_INSEC) {
-
+//export async function  createUltravoxCallConfig(System_Prompt, Agent_Voice,COMPANY_NAME,FROM,TO,TEMPERATURE,ISCALLTRANSCRIPT,ISCALLRECORDING,ISCALLFORWARDING,FORWARDING_MOBILE_NUMBER,COMPANYID,EMAILADDRESS,EMAILNOTIFICAION,IS_APPOINTMENT_EMAIL,MAX_CALL_DUR_INSEC) {
+export async function  createUltravoxCallConfig(FINAL_PROMPT,voice, company_name ,FROM,TO,temperature,iscalltranscript,iscallrecording,
+  transfercall_mobileno,company_id,company_email,notification_email,notification_email_add,is_transfercall,is_book_appointment,
+  is_taking_notes,is_appointment_reminder, max_call_dur_insec,knowlege_base_id,use_knowlege_base){
  
-  const TRANSCRIPT = (   ISCALLTRANSCRIPT === true ||   ISCALLTRANSCRIPT=== 'true' ||   ISCALLTRANSCRIPT === 1 ||   ISCALLTRANSCRIPT === '1' );
-  const RECORDING = (   ISCALLRECORDING === true ||   ISCALLRECORDING=== 'true' ||   ISCALLRECORDING === 1 ||   ISCALLRECORDING === '1' );
-
-  // 1. Get UK time with BST/GMT awareness
-  const ukDateOptions = {
-    timeZone: 'Europe/London',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  };
-
-  
-  const ukTimeOptions12h = {
-    timeZone: 'Europe/London',
-    hour12: true,
-    hour: '2-digit',
-    minute: '2-digit'
-  };
-  const ukTimeOptions24h = {
-    timeZone: 'Europe/London',
-    hour12: false,
-    hour: '2-digit',
-    minute: '2-digit'
-  };
-
-  // 2. Format dates/times explicitly for UK
-  const currentDate = new Date().toLocaleDateString('en-GB', ukDateOptions)
-    .split('/').reverse().join('-'); // Converts DD/MM/YYYY → YYYY-MM-DD
-
-  const currentTime12h = new Date().toLocaleTimeString('en-GB', ukTimeOptions12h); // HH:mm (12h)
-  const currentTime24h = new Date().toLocaleTimeString('en-GB', ukTimeOptions24h); // HH:mm (24h)
-
-  const maxDurationnow = `${MAX_CALL_DUR_INSEC}s`;
+  const TRANSCRIPT = (   iscalltranscript === true ||   iscalltranscript=== 'true' ||   iscalltranscript === 1 ||   iscalltranscript === '1' );
+  const RECORDING = (   iscallrecording === true ||   iscallrecording=== 'true' ||   iscallrecording === 1 ||   iscallrecording === '1' );
+  // const is_transfercall=(is_transfercall === true ||   is_transfercall=== 'true' ||   is_transfercall === 1 ||   is_transfercall === '1' );
+  //const is_book_appointment=(is_book_appointment === true ||   is_book_appointment=== 'true' ||   is_book_appointment === 1 ||  is_book_appointment === '1' );
+  //const is_taking_notes=(is_taking_notes === true ||   is_taking_notes=== 'true' ||   is_taking_notes === 1 ||   is_taking_notes === '1' );
+  //const is_appointment_reminder=(is_appointment_reminder === true ||   is_appointment_reminder=== 'true' ||   is_appointment_reminder === 1 ||   is_appointment_reminder === '1' );
+ 
+  const maxDurationnow = `${max_call_dur_insec}s`;
   console.log('Max Call Duration:', maxDurationnow);
   // Example Output during BST (June):
   // currentDate → "2024-06-15"
   // currentTime → "14:30" (BST = UTC+1)  
-
 return {
-    systemPrompt: System_Prompt
-    .replace(/\[CURRENT_DATE_YYYY-MM-DD\]/g, currentDate)
-    .replace(/\[CURRENT_TIME_HH:MM \(12h\)\]/g, currentTime12h)
-    .replace(/\[CURRENT_TIME_HH:MM \(24h\)\]/g, currentTime24h)
-    .replace(/\[CALLERPHONENO]/g, FROM),     
+    systemPrompt: FINAL_PROMPT,     
     model: 'fixie-ai/ultravox',
-    voice: Agent_Voice,
-    temperature: TEMPERATURE,
+    voice: voice,
+    temperature: temperature,
     firstSpeaker: 'FIRST_SPEAKER_AGENT',
-    selectedTools: createSelectedTools(FROM, TO,IS_APPOINTMENT_EMAIL,ISCALLFORWARDING,FORWARDING_MOBILE_NUMBER,COMPANY_NAME ,COMPANYID),//selectedTools,
+    selectedTools: createSelectedTools(FROM, TO,is_book_appointment ,is_transfercall,transfercall_mobileno,company_name ,company_id,
+      is_transfercall, is_taking_notes,is_appointment_reminder,knowlege_base_id,use_knowlege_base
+    ),
     
     medium: { "twilio": {} },
     recordingEnabled: RECORDING,
@@ -545,17 +444,16 @@ return {
     maxDuration: maxDurationnow,   
     metadata: {
         direction: "INBOUND",
-        company: COMPANY_NAME,
+        company: company_id,
         callfrom: FROM,
         callto: TO,
-        ISCALLTRANSCRIPT: String(ISCALLTRANSCRIPT).toLowerCase() === 'true' ? 'true' : 'false',
-        ISCALLRECORDING:  String(ISCALLRECORDING).toLowerCase() === 'true' ? 'true' : 'false',  
+        ISCALLTRANSCRIPT: String(iscalltranscript).toLowerCase() === 'true' ? 'true' : 'false',
+        ISCALLRECORDING:  String(iscallrecording).toLowerCase() === 'true' ? 'true' : 'false',  
         
-        COMPANYID: COMPANYID,
-        EMAILADDRESS:EMAILADDRESS,
-        EMAILNOTIFICAION :String(EMAILNOTIFICAION).toLowerCase() === 'true' ? 'true' : 'false', 
-        
-
+        COMPANYID: company_id,
+        EMAILADDRESS:company_email,
+        EMAILNOTIFICAION :String(notification_email).toLowerCase() === 'true' ? 'true' : 'false', 
+        NOTIFICAIONEMAIL_ADD:notification_email_add
       }
   };
 }

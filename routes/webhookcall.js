@@ -86,21 +86,22 @@ router.post('/callend',verifyUltravoxSignature, async (req, res) => {
 
 
     const EMAILNOTIFICAION=body?.call?.metadata?.EMAILNOTIFICAION;
+    const NOTIFICAIONEMAIL_ADD=body?.call?.metadata?.NOTIFICAIONEMAIL_ADD;
 
 
    logMessage('Ultravox callId:', callId);
    logMessage('Short summary:', shortSummary);
     // console.log('Full summary:', summary);
 
-    if (!callId) {
+   if (!callId) {
       logMessage('Missing callId in Ultravox webhook');
-        await log_incoming_call_request('Missing callId in Ultravox webhook /scallend:',  error, `Line 69`);
-      return res.status(200).json({ success: true, ignored: true });
-    }  
+      await log_incoming_call_request('Missing callId in Ultravox webhook /scallend:',  error, `Line 69`);
+    return res.status(200).json({ success: true, ignored: true });
+   }  
    logMessage('callId line 72:');
    logMessage('callId line 72:');
     const CALL_SESSION_DATA = await log_CallSession(req.body);  
-       await log_incoming_call_request('log_CallSession /callend:',  CALL_SESSION_DATA,`Line 75`);
+       await log_incoming_call_request('log_CallSession /callend:',  CALL_SESSION_DATA,`Line 79`);
     logMessage('CALL_SESSION_DATA Response log_incoming_call_request:', CALL_SESSION_DATA);
     // console.log('CALL_SESSION_DATA Response:', CALL_SESSION_DATA);
 
@@ -111,7 +112,8 @@ router.post('/callend',verifyUltravoxSignature, async (req, res) => {
 
     if(ISCALLTRANSCRIPT)
     {
-    const APPEND_CALLWITH_TRANSCRIPT = await  appendCallWithTranscript(callTranscriptEndpoint,COMPANYID,EMAILADDRESS,EMAILNOTIFICAION,shortSummary,summary,callended);
+    logMessage('In ISCALLTRANSCRIPT 115');
+    const APPEND_CALLWITH_TRANSCRIPT = await  appendCallWithTranscript(callTranscriptEndpoint,COMPANYID,EMAILADDRESS,EMAILNOTIFICAION,shortSummary,summary,callended,NOTIFICAIONEMAIL_ADD);
     await log_incoming_call_request('appendCallWithTranscript /callend:',  APPEND_CALLWITH_TRANSCRIPT,  `Line 87`);
     }else{
       logMessage('ISCALLTRANSCRIPT is false, not appending transcript');
