@@ -14,7 +14,7 @@ export function MAKE_PROMPT(
       // Format FAQs into a readable string
       let faqsSection = '';
       if (table_faqs && Array.isArray(table_faqs) && table_faqs.length > 0) {
-        faqsSection = '\n\nFREQUENTLY ASKED QUESTIONS:\n';
+        faqsSection = '\n\n ### FREQUENTLY ASKED QUESTIONS:\n';
         table_faqs.forEach((faq, index) => {
           if (faq.question && faq.answer) {
             faqsSection += `\nQ${index + 1}: ${faq.question}\nA${index + 1}: ${faq.answer}\n`;
