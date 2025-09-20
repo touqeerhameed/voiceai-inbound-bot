@@ -97,6 +97,8 @@ router.post('/incoming', verifyTwilioSignature,async (req, res) => {
     const companyaddress = company?.companyaddress;
     const website = company?.website;
     const company_email = company?.emailaddress;
+    const business_services = company?.business_services;
+    const business_description =company?.business_description;
     const company_phone_number = company?.phone_number;
     const default_company = company?.default_company;
     const contactpersonno=  company?.contactpersonno;
@@ -192,7 +194,9 @@ router.post('/incoming', verifyTwilioSignature,async (req, res) => {
       persona_tone, core_objective, key_rules_constraints, unresponsive_spam, tool_functions, ai_datetime_handling, prompt_misc,
       call_flow, business_knowledge_base,example_scenario,table_faqs, pronunciation, kpi_assessment,
       //REPLACEMENT
-      is_record_disclaimer,record_disclaimer,FROM,ai_tags_dictionary,website,company_name,agent_name);
+      is_record_disclaimer,record_disclaimer,FROM,ai_tags_dictionary,website,company_name,agent_name,
+      greeting,business_services,business_description
+    );
 
     const ULTRAVOX_CALL_CONFIG = await createUltravoxCallConfig(FINAL_PROMPT, voice,company_name ,FROM,TO,temperature,iscalltranscript,
       iscallrecording,transfercall_mobileno,
