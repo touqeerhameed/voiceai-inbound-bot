@@ -146,6 +146,417 @@ This document outlines the complete **Multi-Tenant SaaS Platform** architecture 
 - Automated subdomain provisioning
 - Multi-tenant monitoring and analytics
 
+## **📊 Multi-Tenant Flow Diagrams**
+
+### **Flow 1: Business Registration & Onboarding Process**
+
+```mermaid
+graph TD
+    A[Business Owner visits qastco.com] --> B[Click 'Register Business']
+    B --> C[Fill Registration Form]
+    C --> D{Business Info Valid?}
+    D -->|No| C
+    D -->|Yes| E[Auto-generate Subdomain]
+    E --> F[Create ERPNext Company]
+    F --> G[Setup Redis Namespace]
+    G --> H[Configure Ultravox Account]
+    H --> I[Generate API Keys]
+    I --> J[Send Welcome Email]
+    J --> K[Business Dashboard Ready]
+    K --> L[Download WordPress Plugin]
+    L --> M[Install on WordPress Site]
+    M --> N[Configure API Key]
+    N --> O[Voice Widget Active]
+    O --> P[🎉 Ready for Voice Calls!]
+
+    style A fill:#e1f5fe
+    style P fill:#c8e6c9
+    style K fill:#fff3e0
+    style O fill:#f3e5f5
+```
+
+### **Flow 2: Customer Voice Interaction - Multi-Tenant**
+
+```mermaid
+graph TD
+    A[Customer clicks Voice Widget] --> B[Widget identifies Business]
+    B --> C[Redirect to business.qastco.com]
+    C --> D[Load Business Configuration]
+    D --> E[Initialize Ultravox Session]
+    E --> F[Customer starts speaking]
+    F --> G[Ultravox processes voice]
+    G --> H[Webhook to Session Manager]
+    H --> I{Identify Business Tenant}
+    I --> J[Load Business Context]
+    J --> K[Route to MCP Server]
+    K --> L[Business-specific Processing]
+    L --> M[Generate Dynamic UI]
+    M --> N[Call ERPNext Business API]
+    N --> O[Store in Business Database]
+    O --> P[Real-time Staff Notification]
+    P --> Q[Customer Confirmation]
+    Q --> R[Session Complete]
+
+    style A fill:#e1f5fe
+    style I fill:#fff3e0
+    style L fill:#f3e5f5
+    style P fill:#e8f5e8
+    style R fill:#c8e6c9
+```
+
+### **Flow 3: WordPress Plugin Multi-Business Integration**
+
+```mermaid
+graph TD
+    A[WordPress Admin installs Plugin] --> B[Plugin Configuration Page]
+    B --> C[Select Business Type]
+    C --> D{Has API Key?}
+    D -->|No| E[Register New Business]
+    D -->|Yes| F[Enter API Key & Subdomain]
+    E --> G[Auto-registration API Call]
+    G --> H[Receive API Key & Subdomain]
+    H --> F
+    F --> I[Test API Connection]
+    I --> J{Connection Success?}
+    J -->|No| K[Show Error & Instructions]
+    J -->|Yes| L[Save Configuration]
+    L --> M[Load Business Widget Config]
+    M --> N[Add Voice Widget to Site]
+    N --> O[🎉 Voice Agent Active]
+
+    K --> B
+    style A fill:#e1f5fe
+    style E fill:#fff3e0
+    style I fill:#f3e5f5
+    style O fill:#c8e6c9
+```
+
+### **Flow 4: Multi-Tenant Session Management Architecture**
+
+```mermaid
+graph TD
+    subgraph "SaaS Platform Layer"
+        A[qastco.com Portal]
+        B[Business Registration]
+        C[Billing & Analytics]
+    end
+
+    subgraph "Business Layer"
+        D[pizza.qastco.com]
+        E[doctor.qastco.com]
+        F[support.qastco.com]
+    end
+
+    subgraph "Session Management Layer"
+        G[Node.js Session Manager]
+        H[MCP Voice Server]
+        I[Redis Cluster]
+    end
+
+    subgraph "Data Layer"
+        J[ERPNext Multi-Company]
+        K[Business 1 Data]
+        L[Business 2 Data]
+        M[Business 3 Data]
+    end
+
+    A --> B
+    B --> D
+    B --> E
+    B --> F
+
+    D --> G
+    E --> G
+    F --> G
+
+    G --> H
+    G --> I
+    H --> I
+
+    G --> J
+    J --> K
+    J --> L
+    J --> M
+
+    style A fill:#e1f5fe
+    style G fill:#fff3e0
+    style J fill:#f3e5f5
+```
+
+### **Flow 5: Business-Specific Voice Order Processing**
+
+```mermaid
+sequenceDiagram
+    participant C as Customer
+    participant W as WordPress Widget
+    participant S as SaaS Platform
+    participant N as Node.js Session
+    participant M as MCP Server
+    participant E as ERPNext Business
+    participant St as Staff Dashboard
+
+    C->>W: Clicks "Voice Order"
+    W->>S: Get business config
+    S->>W: Return business settings
+    W->>C: Open voice interface
+    C->>S: Start voice session
+    S->>N: Create tenant session
+    N->>M: Initialize voice processing
+    M->>N: Session ready
+    N->>C: Voice interface active
+
+    C->>S: "I want 2 pizzas"
+    S->>N: Voice webhook
+    N->>M: Process with business context
+    M->>N: Extract: quantity=2, item=pizza
+    N->>E: Call business pizza API
+    E->>N: Order created, total=$35.98
+    N->>St: Real-time staff notification
+    N->>C: "Order confirmed, total $35.98"
+
+    St->>E: Update order status
+    E->>N: Status changed to "Preparing"
+    N->>C: "Your pizza is being prepared"
+```
+
+### **Flow 6: Multi-Tenant Data Isolation & Security**
+
+```mermaid
+graph TD
+    subgraph "Tenant Isolation Layers"
+        A[Subdomain Routing]
+        B[API Key Authentication]
+        C[Business ID Context]
+        D[Redis Namespacing]
+        E[ERPNext Company Separation]
+        F[Database Row-Level Security]
+    end
+
+    subgraph "Business A Data"
+        G[pizza:session:123]
+        H[Company: Pizza Palace]
+        I[Orders, Customers, Menu]
+    end
+
+    subgraph "Business B Data"
+        J[doctor:session:456]
+        K[Company: Dr Smith Clinic]
+        L[Appointments, Patients, Services]
+    end
+
+    A --> B
+    B --> C
+    C --> D
+    C --> E
+    E --> F
+
+    D --> G
+    E --> H
+    F --> I
+
+    D --> J
+    E --> K
+    F --> L
+
+    style A fill:#ffebee
+    style B fill:#fff3e0
+    style C fill:#e8f5e8
+    style D fill:#e1f5fe
+    style E fill:#f3e5f5
+    style F fill:#fce4ec
+```
+
+### **Flow 7: Subscription & Billing Management**
+
+```mermaid
+graph TD
+    A[Business Usage Tracking] --> B[Session Counter]
+    B --> C[Monthly Usage Calculation]
+    C --> D{Over Limit?}
+    D -->|No| E[Normal Operation]
+    D -->|Yes| F[Usage Overage Alert]
+    F --> G[Generate Additional Charges]
+    G --> H[Auto-billing via Stripe]
+    H --> I[Payment Success?]
+    I -->|Yes| J[Continue Service]
+    I -->|No| K[Payment Failed Alert]
+    K --> L[Grace Period]
+    L --> M{Payment Resolved?}
+    M -->|Yes| J
+    M -->|No| N[Suspend Service]
+
+    E --> O[End of Month]
+    J --> O
+    O --> P[Generate Monthly Invoice]
+    P --> Q[Auto-charge Subscription]
+    Q --> R[Email Invoice]
+
+    style A fill:#e1f5fe
+    style F fill:#fff3e0
+    style K fill:#ffebee
+    style N fill:#ffcdd2
+    style R fill:#c8e6c9
+```
+
+### **Flow 8: WordPress Plugin Distribution & Installation**
+
+```mermaid
+graph TD
+    A[Plugin Development] --> B[Package WordPress Plugin]
+    B --> C[Upload to WordPress.org]
+    C --> D[Plugin Available in WP Admin]
+
+    subgraph "Business Owner Journey"
+        E[Search 'Voice Agent' in Plugins]
+        F[Install Plugin]
+        G[Activate Plugin]
+        H[Go to Settings]
+        I[Choose Business Type]
+        J{Has API Key?}
+        J -->|No| K[Click 'Register Business']
+        J -->|Yes| L[Enter API Key]
+        K --> M[Redirect to qastco.com/register]
+        M --> N[Complete Registration]
+        N --> O[Receive API Key & Subdomain]
+        O --> L
+        L --> P[Test Connection]
+        P --> Q{Success?}
+        Q -->|No| R[Show Error Message]
+        Q -->|Yes| S[Voice Widget Added]
+        R --> L
+    end
+
+    D --> E
+    S --> T[🎉 Voice Orders Active!]
+
+    style A fill:#e1f5fe
+    style K fill:#fff3e0
+    style M fill:#f3e5f5
+    style S fill:#e8f5e8
+    style T fill:#c8e6c9
+```
+
+### **Flow 9: Real-time Multi-Business Monitoring**
+
+```mermaid
+graph TD
+    subgraph "SaaS Platform Monitoring"
+        A[Global Dashboard]
+        B[Business Health Checks]
+        C[Usage Analytics]
+        D[Revenue Tracking]
+    end
+
+    subgraph "Business 1: Pizza Palace"
+        E[Active Sessions: 15]
+        F[Orders Today: 47]
+        G[Revenue: $1,247]
+        H[Status: Healthy]
+    end
+
+    subgraph "Business 2: Dr Smith Clinic"
+        I[Active Sessions: 3]
+        J[Appointments: 12]
+        K[Revenue: $1,800]
+        L[Status: Healthy]
+    end
+
+    subgraph "Business 3: Auto Repair"
+        M[Active Sessions: 0]
+        N[Bookings: 0]
+        O[Revenue: $0]
+        P[Status: ⚠️ Low Usage]
+    end
+
+    A --> B
+    A --> C
+    A --> D
+
+    B --> H
+    B --> L
+    B --> P
+
+    C --> E
+    C --> F
+    C --> I
+    C --> J
+    C --> M
+    C --> N
+
+    D --> G
+    D --> K
+    D --> O
+
+    P --> Q[Auto-send Usage Tips Email]
+    P --> R[Schedule Check-in Call]
+
+    style A fill:#e1f5fe
+    style H fill:#c8e6c9
+    style L fill:#c8e6c9
+    style P fill:#fff3e0
+    style Q fill:#f3e5f5
+```
+
+### **Flow 10: Scalability & Load Distribution**
+
+```mermaid
+graph TD
+    subgraph "Load Balancer Layer"
+        A[Nginx Load Balancer]
+        B[Wildcard SSL *.qastco.com]
+        C[Subdomain Routing]
+    end
+
+    subgraph "Application Layer (Auto-Scaling)"
+        D[Node.js Instance 1<br/>500 sessions]
+        E[Node.js Instance 2<br/>500 sessions]
+        F[Node.js Instance N<br/>500 sessions]
+    end
+
+    subgraph "MCP Processing Layer"
+        G[MCP Server 1]
+        H[MCP Server 2]
+        I[MCP Server N]
+    end
+
+    subgraph "Data Layer"
+        J[Redis Cluster<br/>Session Storage]
+        K[ERPNext<br/>Business Logic]
+        L[PostgreSQL<br/>Platform Data]
+    end
+
+    A --> B
+    B --> C
+    C --> D
+    C --> E
+    C --> F
+
+    D --> G
+    E --> H
+    F --> I
+
+    D --> J
+    E --> J
+    F --> J
+
+    G --> K
+    H --> K
+    I --> K
+
+    G --> L
+    H --> L
+    I --> L
+
+    M[High Load Detected] --> N[Auto-scale Node.js]
+    N --> O[Spin up new instances]
+    O --> P[Distribute load]
+
+    style A fill:#e1f5fe
+    style M fill:#fff3e0
+    style N fill:#f3e5f5
+    style P fill:#c8e6c9
+```
+
 ## **Multi-Tenant Database Architecture**
 
 ### **ERPNext Multi-Company Structure**
