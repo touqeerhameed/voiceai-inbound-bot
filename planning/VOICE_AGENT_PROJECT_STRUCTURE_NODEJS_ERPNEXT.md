@@ -2,9 +2,9 @@
 
 ## Project Overview
 
-This document outlines the complete project structure for the Voice AI Agent system with **Node.js backend for concurrent session handling** and **ERPNext for business logic and data storage**, supporting 1000+ simultaneous voice calls.
+This document outlines the complete project structure for the Voice AI Agent system with **Node.js + MCP Server + ERPNext combination approach** for optimal performance, supporting 1000+ simultaneous voice calls with real-time UI synchronization.
 
-## **Updated Architecture: Node.js + ERPNext Hybrid**
+## **Updated Architecture: Node.js + MCP Server + ERPNext (Combination Approach)**
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
@@ -15,40 +15,54 @@ This document outlines the complete project structure for the Voice AI Agent sys
                                 │                         │
                                 │                         │
                         ┌──────────────────┐    ┌─────────────────┐
-                        │   Ultravox       │    │   ERPNext       │
-                        │   Voice AI       │────│   Business      │
-                        │   Platform       │    │   Logic & DB    │
+                        │   Ultravox       │    │   MCP Server    │
+                        │   Voice AI       │────│   Real-time     │
+                        │   Platform       │    │   Voice Tools   │
                         └──────────────────┘    └─────────────────┘
                                 │                         │
                                 │                         │
                         ┌──────────────────┐    ┌─────────────────┐
-                        │   Redis Cluster  │    │   PostgreSQL    │
-                        │   Session Store  │    │   ERPNext DB    │
-                        └──────────────────┘    └─────────────────┘
+                        │   Redis Cluster  │    │   ERPNext       │
+                        │   Session Store  │────│   Business      │
+                        └──────────────────┘    │   Logic & DB    │
+                                                └─────────────────┘
+                                                         │
+                                                ┌─────────────────┐
+                                                │   PostgreSQL    │
+                                                │   ERPNext DB    │
+                                                └─────────────────┘
 ```
 
-## **Architectural Decision: Node.js as Middleware (RECOMMENDED)**
+## **Architectural Decision: Node.js + MCP Server + ERPNext (OPTIMAL COMBINATION)**
 
 ### **Technical Architecture Choice**
 ```
-Ultravox Webhook → Node.js Backend → ERPNext API (✅ RECOMMENDED)
+Ultravox Webhook → Node.js (Session Mgmt) → MCP Server (Voice Tools) → ERPNext (Business Logic) ✅ OPTIMAL
 vs
-Ultravox Webhook → ERPNext Direct (❌ NOT RECOMMENDED)
+Ultravox Webhook → ERPNext Direct (❌ NOT SCALABLE)
+vs
+Ultravox Tools Only → No Real-time UI (❌ LIMITED)
 ```
 
-### **Why Node.js Backend is REQUIRED:**
+### **Why This Combination Approach is OPTIMAL:**
+
+#### **Node.js Backend Role:**
 - **Concurrent Session Management**: Handle 1000+ simultaneous voice calls efficiently
-- **Non-blocking I/O**: Perfect for real-time voice processing (vs ERPNext's blocking operations)
-- **Webhook Reliability**: Handle webhook bursts that would overwhelm ERPNext workers
-- **Session Context**: Maintain conversation state across multiple interactions
+- **Webhook Processing**: Receive and distribute Ultravox webhooks
+- **Session Orchestration**: Coordinate between MCP Server and ERPNext
 - **Real-time WebSocket Management**: Live session updates and instant UI synchronization
 - **Redis Session Store**: Distributed session management across multiple instances
-- **Error Resilience**: Retry failed ERPNext calls without losing webhook data
-- **Rate Limiting**: Protect ERPNext from being overwhelmed by concurrent requests
-- **Performance**: <500ms response time vs 1-5s for direct ERPNext webhooks
-- **Scalability**: Scale webhook handling independently from business logic processing
+- **Load Balancing**: Distribute processing across components
 
-### **Why ERPNext for Business Logic (Not Session Management):**
+#### **MCP Server Role:**
+- **Real-time Voice Processing**: Intelligent parameter extraction from voice input
+- **Context-aware Form Generation**: Dynamic UI generation based on conversation
+- **Voice-to-Action Integration**: Convert speech directly to structured data
+- **Advanced Voice Tools**: Natural language understanding and processing
+- **UI Synchronization**: Real-time interface updates during voice conversations
+- **Voice Recognition Optimization**: Confidence scoring and accuracy improvements
+
+#### **ERPNext Role (Business Logic & Data):**
 - **Enterprise Data Management**: Robust document management and workflows
 - **Business Rules**: Complex business logic and approval workflows
 - **Reporting & Analytics**: Powerful built-in reporting and dashboard engine
@@ -59,57 +73,69 @@ Ultravox Webhook → ERPNext Direct (❌ NOT RECOMMENDED)
 
 ### **Performance Comparison:**
 
-| Metric | Via Node.js (✅) | Direct ERPNext (❌) |
-|--------|------------------|---------------------|
-| Concurrent Webhooks | 1000+ | ~50-100 |
-| Response Time | <500ms | 1-5s |
-| Memory Usage | Efficient | Heavy |
-| Error Recovery | Excellent | Limited |
-| Real-time Updates | Yes | No |
-| Session State | Maintained | Lost |
-| Scalability | High | Low |
-| Webhook Reliability | 99.9% | ~85% |
+| Metric | Node.js+MCP+ERPNext (✅) | Direct ERPNext (❌) | Ultravox Only (❌) |
+|--------|--------------------------|---------------------|-------------------|
+| Concurrent Sessions | 1000+ | ~50-100 | 1000+ |
+| Response Time | <300ms | 1-5s | <500ms |
+| Real-time UI Updates | Excellent | No | Limited |
+| Voice Processing | Advanced (MCP) | Basic | Good |
+| Business Logic | Enterprise (ERPNext) | Enterprise | None |
+| Session Management | Distributed | Limited | None |
+| Scalability | Very High | Low | Medium |
+| Development Speed | Fast | Slow | Very Fast |
+| Enterprise Features | Full | Full | None |
 
-## **6 Core Projects Required**
+## **7 Core Projects Required (Updated with MCP)**
 
 ### **Project 1: `voice-session-manager` (Node.js Backend)**
 **Technology**: Node.js, Express, Socket.io, Redis, Ultravox SDK
-**Purpose**: Concurrent session management and real-time processing
+**Purpose**: Concurrent session management and orchestration
 **Port**: 3001
 **Features**:
 - Session clustering and load balancing
 - WebSocket management for real-time updates
 - Ultravox webhook processing
 - Redis-based session storage
-- ERPNext API integration
+- MCP Server and ERPNext API integration
 
-### **Project 2: `voice_agent` (ERPNext App)**
+### **Project 2: `mcp-voice-server` (MCP Server)**
+**Technology**: TypeScript, Model Context Protocol, Voice Processing APIs
+**Purpose**: Real-time voice processing and UI synchronization
+**Port**: 3002
+**Features**:
+- Real-time voice-to-action conversion
+- Context-aware form generation
+- Advanced voice processing tools
+- UI synchronization during conversations
+- Intelligent parameter extraction
+
+### **Project 3: `voice_agent` (ERPNext App)**
 **ERPNext App Name**: `voice_agent`
 **Purpose**: Voice session data storage and configuration
 **Technology**: Python, Frappe Framework
 **Features**: Session persistence, analytics, configuration management
 
-### **Project 3: `business_workflows` (ERPNext App)**
+### **Project 4: `business_workflows` (ERPNext App)**
 **ERPNext App Name**: `business_workflows`
 **Purpose**: Business-specific modules and workflows
 **Technology**: Python, Frappe Framework, Custom Doctypes
 **Features**: Order processing, appointments, support tickets
 
-### **Project 4: `voice-ui-client` (Frontend Interface)**
-**Technology**: React.js, Ultravox JavaScript SDK, Socket.io Client
-**Purpose**: Real-time voice agent interface
+### **Project 5: `voice-ui-client` (Frontend Interface)**
+**Technology**: React.js, Ultravox JavaScript SDK, Socket.io Client, MCP Client
+**Purpose**: Real-time voice agent interface with MCP integration
 **Port**: 3000
-**Features**: Live session monitoring, staff dashboards, customer interface
+**Features**: Live session monitoring, staff dashboards, customer interface, real-time UI updates
 
-### **Project 5: `wp-voice-widget` (WordPress Integration)**
+### **Project 6: `wp-voice-widget` (WordPress Integration)**
 **Technology**: WordPress Plugin (PHP/JavaScript)
 **Purpose**: Popup integration on neoron.co.uk
-**Features**: Direct Node.js backend connection
+**Features**: Direct Node.js backend connection with MCP support
 
-### **Project 6: `voice-infrastructure` (Deployment)**
+### **Project 7: `voice-infrastructure` (Deployment)**
 **Technology**: Docker, Nginx, Redis Cluster, Load Balancers
 **Purpose**: Production deployment and scaling
-**Features**: Multi-instance Node.js, ERPNext integration, monitoring
+**Features**: Multi-instance Node.js, MCP Server scaling, ERPNext integration, monitoring
 
 ---
 
@@ -441,6 +467,239 @@ class ERPNextService {
 
 ---
 
+## **Project 2: MCP Voice Server Structure**
+
+```
+/mcp-voice-server/
+├── package.json
+├── src/
+│   ├── index.ts
+│   ├── server.ts
+│   ├── tools/
+│   │   ├── voiceProcessor.ts
+│   │   ├── formGenerator.ts
+│   │   ├── parameterExtractor.ts
+│   │   └── uiSynchronizer.ts
+│   ├── handlers/
+│   │   ├── restaurantHandler.ts
+│   │   ├── appointmentHandler.ts
+│   │   ├── supportHandler.ts
+│   │   └── generalHandler.ts
+│   ├── services/
+│   │   ├── voiceAnalysis.ts
+│   │   ├── contextManager.ts
+│   │   ├── nodeJsConnector.ts
+│   │   └── erpnextConnector.ts
+│   ├── types/
+│   │   ├── voice.ts
+│   │   ├── session.ts
+│   │   └── mcp.ts
+│   ├── utils/
+│   │   ├── logger.ts
+│   │   ├── validators.ts
+│   │   └── formatters.ts
+│   └── config/
+│       ├── mcp.ts
+│       ├── voice.ts
+│       └── database.ts
+├── dist/
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── voice/
+└── docs/
+    ├── mcp-protocol.md
+    └── voice-tools.md
+```
+
+### **Key MCP Server Components**
+
+#### **1. Voice Processing Tools (voiceProcessor.ts)**
+```typescript
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+
+export class VoiceProcessor {
+  private server: Server;
+  private nodeJsConnector: NodeJsConnector;
+
+  constructor() {
+    this.server = new Server(
+      { name: "mcp-voice-server", version: "1.0.0" },
+      { capabilities: { tools: {}, resources: {} } }
+    );
+    this.setupTools();
+  }
+
+  private setupTools() {
+    // Real-time voice-to-action tool
+    this.server.setRequestHandler('tools/call', async (request) => {
+      const { name, arguments: args } = request.params;
+
+      switch (name) {
+        case 'processVoiceInput':
+          return await this.processVoiceInput(args);
+        case 'generateDynamicForm':
+          return await this.generateDynamicForm(args);
+        case 'extractParameters':
+          return await this.extractParameters(args);
+        case 'synchronizeUI':
+          return await this.synchronizeUI(args);
+        default:
+          throw new Error(`Unknown tool: ${name}`);
+      }
+    });
+
+    // List available tools
+    this.server.setRequestHandler('tools/list', async () => ({
+      tools: [
+        {
+          name: 'processVoiceInput',
+          description: 'Process raw voice input and extract structured data',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              voiceText: { type: 'string' },
+              sessionContext: { type: 'object' },
+              businessType: { type: 'string' }
+            }
+          }
+        },
+        {
+          name: 'generateDynamicForm',
+          description: 'Generate dynamic UI forms based on conversation',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              conversationContext: { type: 'object' },
+              formType: { type: 'string' },
+              extractedData: { type: 'object' }
+            }
+          }
+        },
+        {
+          name: 'extractParameters',
+          description: 'Extract parameters from voice with high confidence',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              audioData: { type: 'string' },
+              expectedParameters: { type: 'array' },
+              context: { type: 'object' }
+            }
+          }
+        },
+        {
+          name: 'synchronizeUI',
+          description: 'Synchronize UI updates in real-time',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              sessionId: { type: 'string' },
+              uiUpdates: { type: 'object' },
+              timestamp: { type: 'string' }
+            }
+          }
+        }
+      ]
+    }));
+  }
+
+  async processVoiceInput(args: any) {
+    const { voiceText, sessionContext, businessType } = args;
+
+    // Advanced voice processing with context
+    const processedData = await this.analyzeVoiceWithContext(voiceText, sessionContext);
+
+    // Generate appropriate response based on business type
+    const response = await this.generateBusinessResponse(processedData, businessType);
+
+    // Sync with Node.js session manager
+    await this.nodeJsConnector.updateSession(sessionContext.sessionId, {
+      lastVoiceInput: voiceText,
+      extractedData: processedData,
+      confidence: response.confidence
+    });
+
+    return {
+      extractedData: processedData,
+      suggestedActions: response.actions,
+      confidence: response.confidence,
+      nextSteps: response.nextSteps
+    };
+  }
+
+  async generateDynamicForm(args: any) {
+    const { conversationContext, formType, extractedData } = args;
+
+    // Generate form based on conversation progress
+    const formStructure = await this.createContextualForm(
+      formType,
+      extractedData,
+      conversationContext
+    );
+
+    // Real-time UI update
+    await this.synchronizeUI({
+      sessionId: conversationContext.sessionId,
+      uiUpdates: { form: formStructure },
+      timestamp: new Date().toISOString()
+    });
+
+    return {
+      formStructure,
+      validationRules: this.generateValidationRules(formType),
+      uiHints: this.generateUIHints(conversationContext)
+    };
+  }
+}
+```
+
+#### **2. Context Manager (contextManager.ts)**
+```typescript
+export class ContextManager {
+  private redis: Redis;
+
+  constructor() {
+    this.redis = new Redis(config.redis);
+  }
+
+  async maintainConversationContext(sessionId: string, newData: any) {
+    const contextKey = `context:${sessionId}`;
+    const existingContext = await this.redis.get(contextKey);
+
+    const context = existingContext ? JSON.parse(existingContext) : {
+      sessionId,
+      conversationHistory: [],
+      extractedEntities: {},
+      currentIntent: null,
+      confidence: 0,
+      lastUpdate: Date.now()
+    };
+
+    // Update context with new information
+    context.conversationHistory.push(newData);
+    context.extractedEntities = { ...context.extractedEntities, ...newData.entities };
+    context.currentIntent = newData.intent || context.currentIntent;
+    context.confidence = newData.confidence || context.confidence;
+    context.lastUpdate = Date.now();
+
+    // Store updated context
+    await this.redis.setex(contextKey, 3600, JSON.stringify(context));
+
+    return context;
+  }
+
+  async getConversationContext(sessionId: string) {
+    const contextKey = `context:${sessionId}`;
+    const context = await this.redis.get(contextKey);
+    return context ? JSON.parse(context) : null;
+  }
+}
+```
+
+---
+
 ## **ERPNext App Structures & Doctypes**
 
 ### **App 2: `voice_agent` (ERPNext - Data Storage)**
@@ -673,7 +932,7 @@ def book_appointment(**kwargs):
 
 ## **Updated Workflow Flows with Node.js + ERPNext**
 
-### **Flow 1: Restaurant Order - Node.js Middleware Architecture**
+### **Flow 1: Restaurant Order - Node.js + MCP + ERPNext Integration**
 
 ```mermaid
 graph TD
@@ -681,26 +940,30 @@ graph TD
     B --> C[Redis: Store session state]
     C --> D[Ultravox: Initialize call]
     D --> E[Customer speaks order]
-    E --> F[Ultravox: Extract order details]
+    E --> F[Ultravox: Extract basic data]
     F --> G[🎯 Node.js: Receive webhook FIRST]
-    G --> H[Node.js: Process & validate data]
-    H --> I[Node.js: Call ERPNext API]
-    I --> J[ERPNext: Create restaurant order]
-    J --> K[ERPNext: Notify kitchen staff]
-    K --> L[Node.js: Send confirmation to customer]
-    L --> M[Redis: Update session state]
+    G --> H[Node.js: Send to MCP Server]
+    H --> I[MCP: Advanced voice processing]
+    I --> J[MCP: Generate dynamic form]
+    J --> K[MCP: Real-time UI update]
+    K --> L[Node.js: Call ERPNext API]
+    L --> M[ERPNext: Create restaurant order]
+    M --> N[ERPNext: Notify kitchen staff]
+    N --> O[Node.js: Confirmation to customer]
+    O --> P[Redis: Update session state]
 
-    %% Why Node.js First
-    G --> N[✅ Session context maintained]
-    G --> O[✅ Non-blocking processing]
-    G --> P[✅ Error handling & retry]
+    %% MCP Advantages
+    H --> Q[✅ Context-aware processing]
+    I --> R[✅ Intelligent parameter extraction]
+    J --> S[✅ Dynamic form generation]
+    K --> T[✅ Real-time UI synchronization]
 
     %% Real-time updates
-    J --> Q[ERPNext: Real-time dashboard update]
-    Q --> R[Kitchen staff sees order]
-    R --> S[Staff updates order status]
-    S --> T[ERPNext: Notify Node.js]
-    T --> U[Node.js: Real-time customer update]
+    M --> U[ERPNext: Real-time dashboard update]
+    U --> V[Kitchen staff sees order]
+    V --> W[Staff updates order status]
+    W --> X[ERPNext: Notify Node.js]
+    X --> Y[Node.js + MCP: Real-time customer update]
 ```
 
 ### **Flow 2: Concurrent Session Management**
