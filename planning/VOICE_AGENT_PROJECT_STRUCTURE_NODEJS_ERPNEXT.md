@@ -4,6 +4,21 @@
 
 This document outlines the complete project structure for the Voice AI Agent system with **Node.js + MCP Server + ERPNext combination approach** for optimal performance, supporting 1000+ simultaneous voice calls with real-time UI synchronization.
 
+## **Directory Structure Overview**
+
+```
+/home/frappeuser/
+├── frappe-bench/apps/          # ERPNext Apps
+│   ├── voice_agent/           # Voice session management
+│   └── business_workflows/    # Business logic apps
+└── ai/                        # AI/Voice Projects
+    ├── voice-session-manager/ # Node.js backend
+    ├── mcp-voice-server/      # MCP server
+    ├── voice-ui-client/       # React frontend
+    ├── wp-voice-widget/       # WordPress plugin
+    └── voice-infrastructure/  # Deployment configs
+```
+
 ## **Updated Architecture: Node.js + MCP Server + ERPNext (Combination Approach)**
 
 ```
@@ -85,9 +100,40 @@ Ultravox Tools Only → No Real-time UI (❌ LIMITED)
 | Development Speed | Fast | Slow | Very Fast |
 | Enterprise Features | Full | Full | None |
 
-## **7 Core Projects Required (Updated with MCP)**
+## **7 Core Projects Required (Updated with Actual Directories)**
 
-### **Project 1: `voice-session-manager` (Node.js Backend)**
+### **ERPNext Apps (Created in `/home/frappeuser/frappe-bench/apps/`)**
+
+### **Project 1: `voice_agent` (ERPNext App)**
+**Location**: `/home/frappeuser/frappe-bench/apps/voice_agent/`
+**ERPNext App Name**: `voice_agent`
+**Purpose**: Voice session data storage and configuration
+**Technology**: Python, Frappe Framework
+**Features**: Session persistence, analytics, configuration management
+**Creation Command**:
+```bash
+cd ~/frappe-bench
+bench new-app voice_agent
+bench --site [site-name] install-app voice_agent
+```
+
+### **Project 2: `business_workflows` (ERPNext App)**
+**Location**: `/home/frappeuser/frappe-bench/apps/business_workflows/`
+**ERPNext App Name**: `business_workflows`
+**Purpose**: Business-specific modules and workflows
+**Technology**: Python, Frappe Framework, Custom Doctypes
+**Features**: Order processing, appointments, support tickets
+**Creation Command**:
+```bash
+cd ~/frappe-bench
+bench new-app business_workflows
+bench --site [site-name] install-app business_workflows
+```
+
+### **AI/Voice Projects (Created in `/home/frappeuser/ai/`)**
+
+### **Project 3: `voice-session-manager` (Node.js Backend)**
+**Location**: `/home/frappeuser/ai/voice-session-manager/`
 **Technology**: Node.js, Express, Socket.io, Redis, Ultravox SDK
 **Purpose**: Concurrent session management and orchestration
 **Port**: 3001
@@ -97,8 +143,17 @@ Ultravox Tools Only → No Real-time UI (❌ LIMITED)
 - Ultravox webhook processing
 - Redis-based session storage
 - MCP Server and ERPNext API integration
+**Creation Command**:
+```bash
+cd ~/ai
+mkdir voice-session-manager
+cd voice-session-manager
+npm init -y
+npm install express socket.io redis ultravox-client
+```
 
-### **Project 2: `mcp-voice-server` (MCP Server)**
+### **Project 4: `mcp-voice-server` (MCP Server)**
+**Location**: `/home/frappeuser/ai/mcp-voice-server/`
 **Technology**: TypeScript, Model Context Protocol, Voice Processing APIs
 **Purpose**: Real-time voice processing and UI synchronization
 **Port**: 3002
@@ -108,34 +163,55 @@ Ultravox Tools Only → No Real-time UI (❌ LIMITED)
 - Advanced voice processing tools
 - UI synchronization during conversations
 - Intelligent parameter extraction
-
-### **Project 3: `voice_agent` (ERPNext App)**
-**ERPNext App Name**: `voice_agent`
-**Purpose**: Voice session data storage and configuration
-**Technology**: Python, Frappe Framework
-**Features**: Session persistence, analytics, configuration management
-
-### **Project 4: `business_workflows` (ERPNext App)**
-**ERPNext App Name**: `business_workflows`
-**Purpose**: Business-specific modules and workflows
-**Technology**: Python, Frappe Framework, Custom Doctypes
-**Features**: Order processing, appointments, support tickets
+**Creation Command**:
+```bash
+cd ~/ai
+mkdir mcp-voice-server
+cd mcp-voice-server
+npm init -y
+npm install typescript @modelcontextprotocol/sdk
+npm install -D @types/node ts-node
+```
 
 ### **Project 5: `voice-ui-client` (Frontend Interface)**
+**Location**: `/home/frappeuser/ai/voice-ui-client/`
 **Technology**: React.js, Ultravox JavaScript SDK, Socket.io Client, MCP Client
 **Purpose**: Real-time voice agent interface with MCP integration
 **Port**: 3000
 **Features**: Live session monitoring, staff dashboards, customer interface, real-time UI updates
+**Creation Command**:
+```bash
+cd ~/ai
+npx create-react-app voice-ui-client --template typescript
+cd voice-ui-client
+npm install socket.io-client @modelcontextprotocol/sdk ultravox-client
+```
 
 ### **Project 6: `wp-voice-widget` (WordPress Integration)**
+**Location**: `/home/frappeuser/ai/wp-voice-widget/`
 **Technology**: WordPress Plugin (PHP/JavaScript)
 **Purpose**: Popup integration on neoron.co.uk
 **Features**: Direct Node.js backend connection with MCP support
+**Creation Command**:
+```bash
+cd ~/ai
+mkdir wp-voice-widget
+cd wp-voice-widget
+# WordPress plugin structure will be created here
+```
 
 ### **Project 7: `voice-infrastructure` (Deployment)**
+**Location**: `/home/frappeuser/ai/voice-infrastructure/`
 **Technology**: Docker, Nginx, Redis Cluster, Load Balancers
 **Purpose**: Production deployment and scaling
 **Features**: Multi-instance Node.js, MCP Server scaling, ERPNext integration, monitoring
+**Creation Command**:
+```bash
+cd ~/ai
+mkdir voice-infrastructure
+cd voice-infrastructure
+# Docker compose and configuration files
+```
 
 ---
 
@@ -1146,8 +1222,47 @@ const sessionData = {
 
 ## **Development Priority (Node.js Middleware Approach)**
 
-### **Phase 1 (Weeks 1-2): Node.js Foundation - CRITICAL**
+### **Phase 1 (Weeks 1-2): Foundation Setup - CRITICAL**
+
+#### **Step 1: Create ERPNext Apps**
+```bash
+# Navigate to frappe-bench
+cd ~/frappe-bench
+
+# Create voice_agent app
+bench new-app voice_agent
+bench --site [your-site-name] install-app voice_agent
+
+# Create business_workflows app
+bench new-app business_workflows
+bench --site [your-site-name] install-app business_workflows
+```
+
+#### **Step 2: Create AI Projects Directory**
+```bash
+# Create AI projects directory
+mkdir -p ~/ai
+cd ~/ai
+
+# Create Node.js session manager
+mkdir voice-session-manager
+cd voice-session-manager
+npm init -y
+npm install express socket.io redis ultravox-client axios
+
+# Create MCP voice server
+cd ~/ai
+mkdir mcp-voice-server
+cd mcp-voice-server
+npm init -y
+npm install typescript @modelcontextprotocol/sdk
+npm install -D @types/node ts-node nodemon
+```
+
+#### **Development Priorities:**
+
 1. **Project**: `voice-session-manager` Node.js backend ⭐ **PRIORITY 1**
+   - **Location**: `/home/frappeuser/ai/voice-session-manager/`
    - **Why First**: Must handle all Ultravox webhooks from day 1
    - Session management with Redis clustering
    - Ultravox webhook endpoint configuration
@@ -1156,6 +1271,7 @@ const sessionData = {
    - Error handling and retry mechanisms
 
 2. **Project**: `voice_agent` ERPNext app ⭐ **PRIORITY 2**
+   - **Location**: `/home/frappeuser/frappe-bench/apps/voice_agent/`
    - Simplified Voice Session doctype for persistence
    - Basic API endpoints called by Node.js (not webhooks)
    - Authentication setup for Node.js calls
