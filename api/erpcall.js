@@ -674,6 +674,58 @@ export async function sms_reply_rec(twilioPayload) {
     // if (process.env.NODE_ENV === 'development') throw error;
   }
 }
+
+export async function whatsapp_reply_rec(twilioPayload) {
+  try {
+    
+    const response = await axios.post(
+      `${ERP_API_BASE_URL}aiagentapp.api.sms_reply_wh.whatsapp_reply_rec`,
+      twilioPayload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `token ${E_ADMIN_API_KEY}:${E_ADMIN_API_SECRET}`
+        }
+      }
+    );
+
+    const log = response.data?.message;
+    if (!log) {
+      logMessage('Log request succeeded but no message returned');
+      //console.log('Log request succeeded but no message returned');
+      return null;
+    }
+    logMessage('Log saved:', log);
+    //console.log('Log saved:', log);
+    return log;
+
+  } catch (error) {
+    // Safe error handling (no crash)
+    if (error.response) {
+      // Server responded with status code outside 2xx
+      console.log(
+        'API responded with error:',
+        error.response.status,
+        error.response.statusText,
+        error.response.data
+      );
+    } else if (error.request) {
+      // Request made, but no response received
+      logMessage('No response from server:', error.request);
+      //console.log('No response from server:', error.request);
+    } else {
+      // Something else failed
+      logMessage('Unexpected error:', error.message);
+      //console.log('Unexpected error:', error.message);
+    }
+
+    // Optionally return null instead of throwing
+    return null;
+
+    // If you want to crash only in dev mode, you could:
+    // if (process.env.NODE_ENV === 'development') throw error;
+  }
+}
  
 export async function log_incoming_call_request(error_text, request_payload, company_found) {
   try {

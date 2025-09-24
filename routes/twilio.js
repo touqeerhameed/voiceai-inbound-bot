@@ -5,7 +5,7 @@ import { createUltravoxCall } from '../utils/ultravox-utils.js';
 import {MAKE_PROMPT} from '../utils/utility.js';
 import { createUltravoxCallConfig } from '../config/ultravox-config.js';
 import {  getBusinesses } from '../utils/business-cache.js';
-import { hangupCall,fetchTelecomNumberByPhone,getbusinessbyPhoneNumber_voice,sms_reply_rec,log_incoming_call_request,log_TransferCall_status,save_phone_company_log,getbusinessbyPhoneNumber,log_TransferCall_gc,getuv,getTTokenForCompany,log_Conference_status,get_conf_party,log_Conference_end } from '../api/erpcall.js';
+import { hangupCall,fetchTelecomNumberByPhone,getbusinessbyPhoneNumber_voice,sms_reply_rec,whatsapp_reply_rec,log_incoming_call_request,log_TransferCall_status,save_phone_company_log,getbusinessbyPhoneNumber,log_TransferCall_gc,getuv,getTTokenForCompany,log_Conference_status,get_conf_party,log_Conference_end } from '../api/erpcall.js';
 
 import {
   TOOLS_BASE_URL,
@@ -15,6 +15,7 @@ import activeCalls from '../utils/activeCallsStore.js'; // adjust path according
 import { logMessage } from '../utils/logger.js';
 import verifyTwilioSignature from '../config/signature-middleware-twilio.js';
 import verifyTwilioSignatureSMS from '../config/signature-middleware-twilio-sms.js';
+import verifyTwilioSignatureWhatsApp, { verifyTwilioSignatureWhatsAppDev } from '../config/signature-middleware-twilio-whatsapp.js';
 const router = express.Router();
 const VoiceResponse = twilio.twiml.VoiceResponse;
 
@@ -921,6 +922,47 @@ router.post('/reply',verifyTwilioSignatureSMS, async (req, res) => {
         // twiml.message('An unexpected error occurred. Please try again later.');
     } finally {
         // Always respond to Twilio with TwiML, even if empty, to avoid retries.
+        res.type('text/xml');
+        res.send(twiml.toString());
+    }
+});
+
+// --- NEW ROUTE FOR INCOMING WHATSAPP MESSAGES ---
+router.post('/whatsapp-webhook', verifyTwilioSignatureWhatsApp, async (req, res) => {
+    const MessagingResponse = twilio.twiml.MessagingResponse;
+    const twilioPayload = req.body;
+    const twiml = new MessagingResponse();
+
+    console.log('Incoming WhatsApp message webhook received from Twilio:', twilioPayload);
+    logMessage(`NEW ROUTE FOR INCOMING WHATSAPP MESSAGES /whatsapp-webhook: ${JSON.stringify(twilioPayload, null, 2)}`);
+    let erpnextResponseData = null;
+
+    try {
+        // Mark message as WhatsApp for logging
+        const whatsappPayload = {
+            ...twilioPayload,
+            messageType: 'whatsapp'
+        };
+
+        // Forward to ERPNext API (reusing SMS function)
+        erpnextResponseData = await whatsapp_reply_rec(whatsappPayload);
+
+        console.log('ERPNext API response for WhatsApp logging:', erpnextResponseData);
+
+        if (erpnextResponseData && erpnextResponseData.success) {
+            console.log('WhatsApp message successfully logged in ERPNext.');
+            // Optional auto-reply
+            // twiml.message('Thanks for your WhatsApp message! We have received it.');
+        } else {
+            console.error('ERPNext failed to log WhatsApp message:', erpnextResponseData?.message || 'Unknown error');
+        }
+
+    } catch (error) {
+        console.error('Error processing incoming WhatsApp webhook:', error.message);
+        if (error.response) {
+            console.error('ERPNext API Error Response:', error.response.status, error.response.data);
+        }
+    } finally {
         res.type('text/xml');
         res.send(twiml.toString());
     }

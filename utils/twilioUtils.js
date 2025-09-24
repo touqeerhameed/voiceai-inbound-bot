@@ -32,3 +32,85 @@ export async function fetchCallDetails(callSid,From) {
     return null;
   }
 }
+
+export async function sendWhatsAppMessage(to, message, credentials) {
+  try {
+    if (!to || !message) {
+      throw new Error('Missing required parameters: to or message');
+    }
+
+    const client = twilio(credentials.twilio_account_sid, credentials.twilio_auth_token);
+
+    // Format the phone number for WhatsApp (must include whatsapp: prefix)
+    const formattedTo = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`;
+    const whatsappFrom = process.env.TWILIO_WHATSAPP_NUMBER || 'whatsapp:+447367184030';
+
+    logMessage('📱 Sending WhatsApp message:', {
+      to: formattedTo,
+      from: whatsappFrom,
+      messageLength: message.length
+    });
+
+    const whatsappMessage = await client.messages.create({
+      body: message,
+      from: whatsappFrom,
+      to: formattedTo
+    });
+
+    logMessage('✅ WhatsApp message sent successfully:', whatsappMessage.sid);
+
+    return {
+      success: true,
+      messageSid: whatsappMessage.sid,
+      status: whatsappMessage.status,
+      to: formattedTo,
+      from: whatsappFrom
+    };
+
+  } catch (error) {
+    logMessage('❌ WhatsApp send error:', error.message);
+
+    return {
+      success: false,
+      error: error.message,
+      code: error.code || 'UNKNOWN_ERROR'
+    };
+  }
+}
+
+export async function sendSMS(to, message, credentials) {
+  try {
+    if (!to || !message) {
+      throw new Error('Missing required parameters: to or message');
+    }
+
+    const client = twilio(credentials.twilio_account_sid, credentials.twilio_auth_token);
+
+    logMessage('📱 Sending SMS:', { to, messageLength: message.length });
+
+    const smsMessage = await client.messages.create({
+      body: message,
+      from: credentials.twilio_phone_number,
+      to: to
+    });
+
+    logMessage('✅ SMS sent successfully:', smsMessage.sid);
+
+    return {
+      success: true,
+      messageSid: smsMessage.sid,
+      status: smsMessage.status,
+      to: to,
+      from: credentials.twilio_phone_number
+    };
+
+  } catch (error) {
+    logMessage('❌ SMS send error:', error.message);
+
+    return {
+      success: false,
+      error: error.message,
+      code: error.code || 'UNKNOWN_ERROR'
+    };
+  }
+}
