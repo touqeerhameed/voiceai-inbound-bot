@@ -2,6 +2,7 @@ import 'dotenv/config';
 import {
   TOOLS_BASE_URL
 } from './config.js';
+import { logMessage } from '../utils/logger.js';
 
  
 
@@ -425,11 +426,13 @@ export async function  createUltravoxCallConfig(FINAL_PROMPT,voice, company_name
  
   const maxDurationnow = `${max_call_dur_insec}s`;
   console.log('Max Call Duration:', maxDurationnow);
+
+  // logMessage('PROMPTING ULTRAVOX WITH:',FINAL_PROMPT);
   // Example Output during BST (June):
   // currentDate → "2024-06-15"
   // currentTime → "14:30" (BST = UTC+1)  
 return {
-    systemPrompt: FINAL_PROMPT,     
+    systemPrompt: FINAL_PROMPT,         
     model: 'fixie-ai/ultravox',
     voice: voice,
     temperature: temperature,

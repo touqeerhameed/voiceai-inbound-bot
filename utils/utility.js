@@ -43,7 +43,7 @@ export function MAKE_PROMPT(
       prompt = PROMPT_REPLACEMENT(prompt, FROM, ai_tags_dictionary);
       logMessage(`After PROMPT_REPLACEMENT replacement prompt : ${prompt}`);
       
-      prompt = PROMPT_EXPLICIT_REPLACEMENT(prompt, is_record_disclaimer, record_disclaimer, website, company_name, agent_name,gretting,greeting,business_services,business_description);
+      prompt = PROMPT_EXPLICIT_REPLACEMENT(prompt, is_record_disclaimer, record_disclaimer, website, company_name, agent_name,greeting,business_services,business_description);
       logMessage(`AFTER PROMPT_EXPLICIT_REPLACEMENT :prompt : ${prompt}`);
       
       return prompt;
