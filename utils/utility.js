@@ -8,7 +8,7 @@ export function MAKE_PROMPT(
     call_flow, business_knowledge_base, example_scenario, table_faqs, pronunciation, kpi_assessment,
     //REPLACEMENT
     is_record_disclaimer, record_disclaimer, FROM, ai_tags_dictionary, website, company_name, agent_name,
-    greeting,business_services,business_description) 
+    greeting,business_services,business_description,opening_hours) 
   {
     
     try {
@@ -43,7 +43,8 @@ export function MAKE_PROMPT(
       prompt = PROMPT_REPLACEMENT(prompt, FROM, ai_tags_dictionary);
       logMessage(`After PROMPT_REPLACEMENT replacement prompt : ${prompt}`);
       
-      prompt = PROMPT_EXPLICIT_REPLACEMENT(prompt, is_record_disclaimer, record_disclaimer, website, company_name, agent_name,greeting,business_services,business_description);
+      prompt = PROMPT_EXPLICIT_REPLACEMENT(prompt, is_record_disclaimer, record_disclaimer, website, company_name, agent_name,greeting,business_services,business_description,opening_hours);
+      prompt = PROMPT_EXPLICIT_REPLACEMENT(prompt, is_record_disclaimer, record_disclaimer, website, company_name, agent_name,greeting,business_services,business_description,opening_hours);
       logMessage(`AFTER PROMPT_EXPLICIT_REPLACEMENT :prompt : ${prompt}`);
       
       return prompt;
@@ -56,14 +57,21 @@ export function MAKE_PROMPT(
 }
  
 
-function PROMPT_EXPLICIT_REPLACEMENT(prompt, is_record_disclaimer, record_disclaimer, website, company_name, agent_name,greeting,business_services,business_description) {
+function PROMPT_EXPLICIT_REPLACEMENT(prompt, is_record_disclaimer, record_disclaimer, website, company_name, agent_name,greeting,business_services,business_description,opening_hours) {
   try {
     // Handle [Disclaimer] replacement
     if (is_record_disclaimer === true || is_record_disclaimer === 1) {
-      if (record_disclaimer && record_disclaimer.trim() !== '') {
+     // if (record_disclaimer && record_disclaimer.trim() !== '') {
+        // logMessage('** out', record_disclaimer);
         if (prompt.includes('[Disclaimer]')) {
-          prompt = prompt.replace(/\[Disclaimer\]/g, record_disclaimer);
+          logMessage('** Replacing [Disclaimer] with record_disclaimer', record_disclaimer);
+          prompt = prompt.replace(/\[Disclaimer\]/g, record_disclaimer);                                    
         }
+      //}
+    }else {
+
+      if (prompt.includes('[Disclaimer]')) {          
+        prompt = prompt.replace(/\[Disclaimer\]/g, "");                                    
       }
     }
 
@@ -92,6 +100,10 @@ function PROMPT_EXPLICIT_REPLACEMENT(prompt, is_record_disclaimer, record_discla
 
      if (prompt.includes('[BUSINESS_SERVICES]') && business_services && business_services.trim() !== '') {
       prompt = prompt.replace(/\[BUSINESS_SERVICES\]/g, business_services);
+    }
+
+     if (prompt.includes('[OPENING_HOURS]') && opening_hours && opening_hours.trim() !== '') {
+      prompt = prompt.replace(/\[OPENING_HOURS\]/g, opening_hours);
     }
 
 

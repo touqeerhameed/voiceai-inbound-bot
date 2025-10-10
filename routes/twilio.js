@@ -17,6 +17,17 @@ import verifyTwilioSignature from '../config/signature-middleware-twilio.js';
 import verifyTwilioSignatureSMS from '../config/signature-middleware-twilio-sms.js';
 import verifyTwilioSignatureWhatsApp, { verifyTwilioSignatureWhatsAppDev } from '../config/signature-middleware-twilio-whatsapp.js';
 const router = express.Router();
+function escapeXml(unsafe) {
+    return unsafe.replace(/[<>&'"]/g, function (c) {
+        switch (c) {
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case '\'': return '&apos;';
+            case '"': return '&quot;';
+        }
+    });
+}
 const VoiceResponse = twilio.twiml.VoiceResponse;
 
 router.post('/incoming', verifyTwilioSignature,async (req, res) => {
@@ -196,7 +207,7 @@ router.post('/incoming', verifyTwilioSignature,async (req, res) => {
       call_flow, business_knowledge_base,example_scenario,table_faqs, pronunciation, kpi_assessment,
       //REPLACEMENT
       is_record_disclaimer,record_disclaimer,FROM,ai_tags_dictionary,website,company_name,agent_name,
-      greeting,business_services,business_description
+      greeting,business_services,business_description,opening_hours
     );
 
     const ULTRAVOX_CALL_CONFIG = await createUltravoxCallConfig(FINAL_PROMPT, voice,company_name ,FROM,TO,temperature,iscalltranscript,
